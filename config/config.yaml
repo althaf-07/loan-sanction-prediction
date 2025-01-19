@@ -1,0 +1,22 @@
+cat_cols:
+- gender
+- married
+- dependents
+- education
+- self_employed
+- property_area
+- loan_amount_term
+- credit_history
+cat_cols_with_na:
+- gender
+- married
+- dependents
+- self_employed
+- loan_amount_term
+- credit_history
+num_cols:
+- applicant_income
+- coapplicant_income
+- loan_amount
+num_cols_with_na:
+- loan_amount

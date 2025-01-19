@@ -4,7 +4,4 @@ matplotlib
 seaborn
 plotly
 scikit-learn
-xgboost
-lightgbm
 klib
-git+https://github.com/flash-lib/flash.git
