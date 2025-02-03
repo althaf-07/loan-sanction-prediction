@@ -1,7 +1,0 @@
-[num]
-cols = [ "applicant_income", "coapplicant_income", "loan_amount",]
-nan = [ "loan_amount",]
-
-[cat]
-cols = [ "gender", "married", "dependents", "education", "self_employed", "property_area", "loan_amount_term", "credit_history",]
-nan = [ "gender", "married", "dependents", "self_employed", "loan_amount_term", "credit_history",]
