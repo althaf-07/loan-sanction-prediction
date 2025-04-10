@@ -1,0 +1,41 @@
+cat:
+  cols:
+    - gender
+    - married
+    - dependents
+    - education
+    - self_employed
+    - property_area
+    - loan_amount_term
+    - credit_history
+  nan:
+    - gender
+    - married
+    - dependents
+    - self_employed
+    - loan_amount_term
+    - credit_history
+useless_cols:
+  - Loan_ID
+col_names:
+  - gender
+  - married
+  - dependents
+  - education
+  - self_employed
+  - applicant_income
+  - coapplicant_income
+  - loan_amount
+  - loan_amount_term
+  - credit_history
+  - property_area
+  - loan_status
+num:
+  cols:
+    - applicant_income
+    - coapplicant_income
+    - loan_amount
+  nan:
+    - loan_amount
+target_col:
+  - loan_status
