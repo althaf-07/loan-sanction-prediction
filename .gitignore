@@ -1,6 +1,6 @@
 .env
 .envrc
-
+.directory
 .venv/
 data/
 models/

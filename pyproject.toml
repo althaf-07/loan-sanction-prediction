@@ -6,11 +6,14 @@ authors = [{ name = "Althaf Muhammad" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.115.12",
     "imbalanced-learn>=0.13.0",
     "numpy>=2.2.4",
     "pandas>=2.2.3",
     "pyyaml>=6.0.2",
     "scikit-learn>=1.6.1",
+    "streamlit>=1.44.1",
+    "uvicorn>=0.34.0",
 ]
 
 [dependency-groups]
