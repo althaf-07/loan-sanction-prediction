@@ -1,8 +1,12 @@
 .env
 .envrc
 .directory
+
 .venv/
 data/
 models/
 logs/
 **/__pycache__/
+.ruff_cache/
+*.egg-info/
+
