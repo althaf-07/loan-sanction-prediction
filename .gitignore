@@ -6,6 +6,7 @@
 data/
 models/
 logs/
+tmp/
 **/__pycache__/
 .ruff_cache/
 *.egg-info/

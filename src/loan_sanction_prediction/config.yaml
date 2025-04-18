@@ -1,41 +1,62 @@
-cat:
-  cols:
-    - gender
-    - married
-    - dependents
-    - education
-    - self_employed
-    - property_area
-    - loan_amount_term
-    - credit_history
-  nan:
-    - gender
-    - married
-    - dependents
-    - self_employed
-    - loan_amount_term
-    - credit_history
+features:
+  continuous:
+    - applicant_income
+    - coapplicant_income
+    - loan_amount
+  discrete:
+    categorical:
+      - dependents
+      - property_area
+      - gender
+      - married
+      - education
+      - self_employed
+    numerical:
+      - loan_amount_term
+      - credit_history
+target: loan_status
 useless_cols:
   - Loan_ID
-col_names:
-  features:
-    - gender
-    - married
-    - dependents
-    - education
-    - self_employed
-    - applicant_income
-    - coapplicant_income
-    - loan_amount
-    - loan_amount_term
-    - credit_history
-    - property_area
-num:
-  cols:
-    - applicant_income
-    - coapplicant_income
-    - loan_amount
-  nan:
-    - loan_amount
-target_col:
-  - loan_status
+data:
+  raw: data/raw/data.csv
+  interim:
+    test: data/interim/test.csv
+    train: data/interim/train.csv
+  processed:
+    test: data/processed/test.csv
+    train: data/processed/train.csv
+train_test_split:
+  test_size: 0.2
+  random_state: 37
+  stratify: Loan_Status
+model:
+  type: rfc
+  params:
+    n_estimators: 100
+    max_depth: 10
+    random_state: 42
+preprocessing:
+  discrete:
+    impute_strategy:
+      most_frequent:
+        - gender
+        - dependents
+        - married
+        - self_employed
+        - loan_amount_term
+        - credit_history
+    encode:
+      oe:
+        - dependents
+        - property_area
+      ohe:
+        - gender
+        - married
+        - education
+        - self_employed
+        - loan_amount_term
+  continuous:
+    impute_strategy:
+      mean:
+        - loan_amount
+    scaler: standard

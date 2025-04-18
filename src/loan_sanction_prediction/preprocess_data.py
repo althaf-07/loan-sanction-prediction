@@ -1,93 +1,72 @@
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from klib import clean_column_names
 
 from loan_sanction_prediction.utils import parse_yaml, setup_logger
 
 
-class DataProcessor(BaseEstimator, TransformerMixin):
-    def __init__(self, config: dict, log):
-        self.config = config
-        self.log = log
+def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, export_df: bool = True):
+    useless_cols = config["useless_cols"]
+    categorical_cols = config["features"]["discrete"]["categorical"]
+    target = config["target"]
 
-    def fit(self, X: pd.DataFrame, y: pd.Series = None):
-        return self
+    # Load dataset
+    try:
+        interim_path = Path(config["data"]["interim"][df_type])
+        df = pd.read_csv(interim_path).copy()
+        log.success(f"Loaded {df_type} dataset")
+    except Exception:
+        log.exception(f"Failed to load {df_type} dataset")
+        raise
 
-    def transform(self, X: pd.DataFrame):
-        X = X.copy()
-        useless_cols = self.config["useless_cols"]
-        features = self.config["col_names"]["features"]
+    # Drop useless columns
+    try:
+        df.drop(columns=useless_cols, inplace=True)
+        log.success(f"Dropped useless columns: {useless_cols}")
+    except Exception:
+        log.exception("Failed to drop useless columns")
+        raise
 
-        # Drop useless columns
+    # Rename columns
+    try:
+        df = clean_column_names(df)
+        log.success(
+            f"Renamed columns: {df.columns[:3].to_list()}... (+{len(df.columns) - 3} more)"
+        )
+    except Exception:
+        log.exception("Failed to rename columns")
+        raise
+
+    # Clean values
+    try:
+        for col in categorical_cols + [target]:
+            df[col] = df[col].str.lower().str.replace(" ", "_")
+        df[target] = df[target].replace({"y": "yes", "n": "no"})
+        log.success("Cleaned values in columns")
+    except Exception:
+        log.exception("Failed to clean values in columns")
+        raise
+
+    if export_df:
+        # Export dataset
         try:
-            X.drop(columns=useless_cols, inplace=True)
-            self.log.success(f"Dropped useless columns: {useless_cols}")
+            processed_path = Path(config["data"]["processed"][df_type])
+            df.to_csv(processed_path, index=False)
+            log.success(f"Exported {df_type} dataset")
         except Exception:
-            self.log.exception("Failed to drop useless columns")
+            log.exception(f"Failed to export {df_type} dataset")
             raise
-
-        # Rename columns
-        try:
-            X.columns = features
-            self.log.success(
-                f"Renamed columns: {X.columns[:3].to_list()}... (+{len(X.columns) - 3} more)"
-            )
-        except Exception:
-            self.log.exception("Failed to rename columns")
-            raise
-
-        # Clean values
-        try:
-            X["dependents"] = X["dependents"].str.replace(r"\+$", "", regex=True)
-            self.log.success("Cleaned values in columns")
-        except Exception:
-            self.log.exception("Failed to clean values in columns")
-            raise
-
-        return X
+    else:
+        return df
 
 
 def main():
     log = setup_logger(Path(__file__).stem)
-    config_path = Path(__file__).resolve().parent / "config.yaml"
-    config = parse_yaml(config_path, log)
-
-    try:
-        train_df = pd.read_csv("data/raw/loan_sanction_train.csv")
-        test_df = pd.read_csv("data/raw/loan_sanction_test.csv")
-        log.success("Loaded datasets")
-    except Exception:
-        log.exception("Failed to load datasets")
-        raise
-
-    try:
-        train_df.rename(columns={"Loan_Status": "loan_status"}, inplace=True)
-        train_df["loan_status"].replace({"Y": "yes", "N": "no"}, inplace=True)
-        log.success("Cleaned target column")
-    except Exception:
-        log.exception("Failed to clean target column")
-        raise
-
-    try:
-        X_train = train_df.drop(columns=["loan_status"])
-        y_train = train_df["loan_status"]
-        dp = DataProcessor(config, log)
-        X_train = dp.fit_transform(X_train)
-        X_test = dp.transform(test_df)
-        log.success("Applied DataProcessor on datasets")
-    except Exception:
-        log.exception("Failed to apply DataProcessor on datasets")
-        raise
-
-    try:
-        X_train = pd.concat([X_train, y_train], axis=1)
-        X_train.to_csv("data/processed/train.csv", index=False)
-        X_test.to_csv("data/processed/test.csv", index=False)
-        log.success("Exported preprocessed datasets")
-    except Exception:
-        log.exception("Failed to export preprocessed datasets")
-        raise
+    config = parse_yaml(log)
+    data_preprocessor("train", config, log)
+    data_preprocessor("test", config, log)
 
 
 if __name__ == "__main__":
