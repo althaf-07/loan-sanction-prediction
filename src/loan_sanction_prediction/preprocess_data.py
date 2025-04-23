@@ -2,20 +2,19 @@ from pathlib import Path
 from typing import Literal
 
 import pandas as pd
-from klib import clean_column_names
 
 from loan_sanction_prediction.utils import parse_yaml, setup_logger
 
 
 def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, export_df: bool = True):
     useless_cols = config["useless_cols"]
-    categorical_cols = config["features"]["discrete"]["categorical"]
+    cat_cols = config["features"]["discrete"]["categorical"]
     target = config["target"]
 
     # Load dataset
     try:
-        interim_path = Path(config["data"]["interim"][df_type])
-        df = pd.read_csv(interim_path).copy()
+        raw_data_path = Path(config["data"]["raw"][df_type])
+        df = pd.read_csv(raw_data_path)
         log.success(f"Loaded {df_type} dataset")
     except Exception:
         log.exception(f"Failed to load {df_type} dataset")
@@ -31,7 +30,7 @@ def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, expo
 
     # Rename columns
     try:
-        df = clean_column_names(df)
+        df = list(config["renamed_column_names"].values())
         log.success(
             f"Renamed columns: {df.columns[:3].to_list()}... (+{len(df.columns) - 3} more)"
         )
@@ -41,7 +40,7 @@ def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, expo
 
     # Clean values
     try:
-        for col in categorical_cols + [target]:
+        for col in cat_cols + [target]:
             df[col] = df[col].str.lower().str.replace(" ", "_")
         df[target] = df[target].replace({"y": "yes", "n": "no"})
         log.success("Cleaned values in columns")

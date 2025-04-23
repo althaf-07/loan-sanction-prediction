@@ -14,11 +14,27 @@ features:
     numerical:
       - loan_amount_term
       - credit_history
+renamed_column_names:
+  Gender: gender
+  Married: married
+  Dependents: dependents
+  Education: education
+  Self_Employed: self_employed
+  ApplicantIncome: applicant_income
+  CoapplicantIncome: coapplicant_income
+  LoanAmount: loan_amount
+  Loan_Amount_Term: loan_amount_term
+  Credit_History: credit_history
+  Property_Area: property_area
+  Loan_Status: loan_status
 target: loan_status
 useless_cols:
   - Loan_ID
 data:
-  raw: data/raw/data.csv
+  raw:
+    test: data/raw/test.csv
+    train: data/raw/train.csv
+    entire_data: data/raw/entire_data.csv
   interim:
     test: data/interim/test.csv
     train: data/interim/train.csv
