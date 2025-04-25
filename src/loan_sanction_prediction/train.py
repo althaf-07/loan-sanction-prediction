@@ -3,13 +3,18 @@ from pathlib import Path
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler, LabelEncoder
+from sklearn.preprocessing import (
+    OneHotEncoder,
+    OrdinalEncoder,
+    StandardScaler,
+    LabelEncoder,
+)
+
 # import numpy as np
-# from sklearn.exceptions 
+# from sklearn.exceptions
 # import warnings
 from loan_sanction_prediction.utils import get_model, parse_yaml, setup_logger
 
@@ -23,7 +28,7 @@ def build_ct(config: dict):
         [("imputer", SimpleImputer(strategy="mean")), ("scaler", StandardScaler())]
     )
 
-    ohe_pl = Pipeline(          
+    ohe_pl = Pipeline(
         [
             ("imputer", SimpleImputer(strategy="most_frequent")),
             ("encoder", OneHotEncoder(drop="first", handle_unknown="ignore")),
@@ -62,7 +67,7 @@ def main():
     except Exception:
         log.exception("Failed to load training dataset")
         raise
-    
+
     ct = build_ct(config)
     clf = get_model(config)
     pl = Pipeline([("ct", ct), ("clf", clf)])
@@ -81,6 +86,7 @@ def main():
     try:
         pl.fit(X_train, y_train)
         model_dir = Path("models")
+        model_dir.mkdir(exist_ok=True, parents=True)  # Ensure dir exists
         joblib.dump(pl, model_dir / "pl.joblib")
         joblib.dump(le, model_dir / "le.joblib")
         log.success("Pipeline trained and saved to models/pl.joblib")

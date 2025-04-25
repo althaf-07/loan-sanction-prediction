@@ -8,3 +8,6 @@ logs/
 tmp/
 **/__pycache__/
 .ruff_cache/
+
+# The 'figures' folder is not meant to be version controlled in most cases. But it is kind of useful to include this in the repository when collaborating over a project remotely. But still then it is better to opt for other options, such as Cloud or Remote transfer.
+# reports/figures/

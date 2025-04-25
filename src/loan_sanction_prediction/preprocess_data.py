@@ -6,7 +6,9 @@ import pandas as pd
 from loan_sanction_prediction.utils import parse_yaml, setup_logger
 
 
-def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, export_df: bool = True):
+def data_preprocessor(
+    df_type: Literal["train", "test"], config: dict, log, export_df: bool = True
+):
     useless_cols = config["useless_cols"]
     cat_cols = config["features"]["discrete"]["categorical"]
     target = config["target"]
@@ -30,7 +32,7 @@ def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, expo
 
     # Rename columns
     try:
-        df = list(config["renamed_column_names"].values())
+        df.columns = list(config["renamed_column_names"].values())
         log.success(
             f"Renamed columns: {df.columns[:3].to_list()}... (+{len(df.columns) - 3} more)"
         )
@@ -51,7 +53,8 @@ def data_preprocessor(df_type: Literal["train", "test"], config: dict, log, expo
     if export_df:
         # Export dataset
         try:
-            processed_path = Path(config["data"]["processed"][df_type])
+            processed_path = Path(config["data"]["interim"][df_type])
+            processed_path.parent.mkdir(exist_ok=True, parents=True)
             df.to_csv(processed_path, index=False)
             log.success(f"Exported {df_type} dataset")
         except Exception:
